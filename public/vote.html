@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Publikumsjoker – Quiz</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+:root{--navy:#07142f;--gold:#ffd166}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#17366f 0,#09152f 55%,#040914 100%);color:#f6f8ff;font-family:system-ui,Segoe UI,Arial,sans-serif;display:grid;place-items:center;padding:18px}.wrap{width:min(560px,100%);background:#10234bee;border:1px solid #ffffff30;border-radius:22px;padding:24px;box-shadow:0 20px 70px #0006}.brand{font-weight:900;letter-spacing:.05em;color:var(--gold);font-size:.85rem}.muted{color:#b9c7e5}.q{font-size:1.35rem;line-height:1.35;margin:18px 0}.answers{display:grid;gap:10px}.ans{display:flex;align-items:center;gap:12px;text-align:left;background:#142f62;color:white;border:1px solid #7895c780;border-radius:12px;padding:15px;font-size:1rem;min-height:60px}.ans b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#24477f;color:var(--gold);flex-shrink:0}.ans:disabled{opacity:.6}.ans.selected{background:#175b43;border-color:#5ad5a4}.status{margin-top:16px;padding:12px;border-radius:10px;background:#ffffff10;line-height:1.5}.hidden{display:none}.foot{font-size:.8rem;color:#9eafd2;margin-top:18px}
+</style></head><body><div class="wrap">
+<div class="brand">QUIZ-MILLIONÄR · PUBLIKUMS-JOKER</div>
+<h1 id="title">Bereit?</h1><p class="muted" id="intro">Warte auf die nächste Publikumsfrage.</p>
+<div id="voting" class="hidden"><div class="q" id="question"></div><div class="answers" id="answers"></div><div class="status" id="status">Wähle deine Antwort.</div></div>
+<div class="foot">Deine Stimme ist anonym. Pro Frage kannst du einmal abstimmen.</div></div>
+<script>
+const socket=io();let currentKey=null,voted=false;
+const $=id=>document.getElementById(id);
+socket.on("connect",()=>{socket.emit("audience:join")});
+socket.on("audience:state",data=>{if(data.pollOpen && data.question)renderQuestion(data.question);else showWaiting()});
+socket.on("host:question",()=>showWaiting());
+socket.on("poll:started",data=>renderQuestion(data));
+socket.on("poll:ended",()=>{$("title").textContent="Abstimmung beendet";$("intro").textContent="Danke für deine Stimme!";$("voting").classList.add("hidden")});
+function showWaiting(){
+ $("title").textContent="Bereit?";$("intro").textContent="Warte, bis der Spielleiter den Publikumsjoker aktiviert.";
+ $("voting").classList.add("hidden");
+}
+function renderQuestion(data){
+ currentKey=String(data.number)+":"+data.question;voted=false;$("title").textContent="Deine Stimme zählt";$("intro").textContent=`Frage ${data.number} von ${data.total||15}`;
+ $("question").textContent=data.question;$("answers").innerHTML="";
+ (data.answers||[]).forEach((a,i)=>{let b=document.createElement("button");b.className="ans";b.innerHTML=`<b>${(data.letters||["A","B","C","D"])[i]}</b><span>${a}</span>`;b.onclick=()=>vote(i,b);$("answers").appendChild(b)});
+ $("status").textContent="Wähle die Antwort, die du für richtig hältst.";$("voting").classList.remove("hidden");
+}
+function vote(i,b){if(voted)return;voted=true;document.querySelectorAll(".ans").forEach(x=>x.disabled=true);b.classList.add("selected");$("status").textContent="Deine Stimme wurde gezählt. Danke!";socket.emit("audience:vote",{key:currentKey,answer:["A","B","C","D"][i]})}
+</script></body></html>
