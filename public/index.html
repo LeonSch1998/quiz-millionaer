@@ -205,10 +205,13 @@ function renderPollResults(final){
  const status=$("pollStatus");if(status)status.textContent=`${total} Stimme${total===1?"":"n"} eingegangen${final?" · Abstimmung beendet":" · Live"}`;
 }
 function usePhone(){
- if(used.phone||answered)return;used.phone=true;$("phoneBtn").disabled=true;
- let q=currentQuestion;let confident=Math.random()<.78;let suggested=confident?q.r:shuffle([0,1,2,3].filter(i=>i!==q.r))[0];
- let confidence=confident?["Ich bin mir ziemlich sicher.","Ich glaube, das müsste stimmen.","Mein Tipp wäre"][Math.floor(Math.random()*3)]:["Ich bin mir nicht ganz sicher, aber ich tippe auf","Das ist schwierig – ich würde"][Math.floor(Math.random()*2)];
- modal("Telefonjoker",`<p><strong>Dein Freund sagt:</strong></p><p>„${confidence} <b>${LETTERS[suggested]}: ${q.a[suggested]}</b>${confident?"!":"."}“</p><p>Du musst selbst entscheiden, ob du dem Tipp folgst.</p>`);
+  if(used.phone||answered)return;
+  used.phone=true;
+  $("phoneBtn").disabled=true;
+
+  modal("Telefonjoker",
+    "<p><strong>Du darfst jetzt eine Person im Raum um Hilfe bitten oder jemanden anrufen.</strong></p>"
+  );
 }
 socket.on("poll:update",data=>{audienceVotes=data.votes||audienceVotes;audienceCount=data.count||0;renderPollResults(false)});
 socket.on("poll:ended",data=>{audienceVotes=data.votes||audienceVotes;pollActive=false;renderPollResults(true);const b=$("closePoll");if(b)b.disabled=true;});
