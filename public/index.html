@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz Millionär – Online-Publikumsjoker</title>
+<style>
+:root{--navy:#07142f;--blue:#102b60;--blue2:#17458a;--gold:#ffd166;--gold2:#f0a928;--white:#f6f8ff;--muted:#aebcdb;--green:#23885e;--red:#b83a48}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(ellipse at top,#17366f 0,#09152f 52%,#040914 100%);color:var(--white);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+button{font:inherit;cursor:pointer;border:0}
+.app{max-width:1180px;margin:auto;padding:22px}
+header{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid #ffffff25;padding-bottom:16px}
+.brand{font-weight:900;letter-spacing:.06em;font-size:clamp(1.15rem,2.4vw,1.8rem)}.brand span{color:var(--gold)}
+.pill{border:1px solid #ffffff35;border-radius:999px;padding:7px 12px;color:var(--muted);font-size:.9rem}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:20px;margin-top:22px}
+main{min-width:0}.stage{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.progress{height:8px;background:#ffffff18;border-radius:99px;overflow:hidden;flex:1;min-width:120px}.progress div{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));width:0;transition:width .3s}
+.card{background:linear-gradient(145deg,#122a59ee,#08152ff2);border:1px solid #ffffff24;border-radius:22px;padding:clamp(20px,4vw,38px);box-shadow:0 18px 55px #0005}
+.category{color:var(--gold);text-transform:uppercase;letter-spacing:.12em;font-size:.78rem;font-weight:800}
+h1{font-size:clamp(1.45rem,3.5vw,2.3rem);line-height:1.22;margin:12px 0 26px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answer{min-height:68px;text-align:left;border:1px solid #7191ce80;border-radius:13px;background:#102653;color:white;padding:15px;display:flex;gap:12px;align-items:center;transition:.15s}
+.answer:hover:not(:disabled){border-color:var(--gold);background:#18376e;transform:translateY(-1px)}
+.letter{display:grid;place-items:center;flex:0 0 31px;height:31px;border-radius:50%;background:#24477f;color:var(--gold);font-weight:900}
+.answer:disabled{cursor:default;opacity:.85}.answer.correct{background:#14553e;border-color:#52d6a1}.answer.wrong{background:#682634;border-color:#ff7a86}.answer.removed{visibility:hidden}
+.feedback{margin-top:18px;padding:15px;border-radius:12px;background:#ffffff10;line-height:1.5;display:none}.feedback.show{display:block}.feedback.good{border:1px solid #52d6a1}.feedback.bad{border:1px solid #ff7a86}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.primary,.secondary,.joker{border-radius:11px;padding:12px 17px;font-weight:800;transition:.15s}
+.primary{background:var(--gold);color:#1c1b18}.primary:hover{background:#ffe29a}.secondary{background:#ffffff12;color:white;border:1px solid #ffffff30}.secondary:hover{background:#ffffff20}
+.jokers{display:grid;gap:10px}.joker{background:#142f62;border:1px solid #7d9bd0;color:white;text-align:left}.joker:hover:not(:disabled){border-color:var(--gold);background:#1d407e}.joker:disabled{opacity:.38;cursor:not-allowed}
+.joker small{display:block;color:var(--muted);font-weight:500;margin-top:3px}
+aside{background:#07122b99;border:1px solid #ffffff20;border-radius:18px;padding:17px;height:max-content}
+aside h2{font-size:1rem;margin:0 0 12px;color:var(--gold)}
+.ladder{display:flex;flex-direction:column-reverse;gap:5px}.step{display:flex;justify-content:space-between;gap:8px;padding:7px 9px;border-radius:7px;color:var(--muted);font-size:.86rem}.step.current{background:var(--gold);color:#17203b;font-weight:900}.step.done{color:#d7e1fa}
+.scorebox{margin-bottom:18px;padding:13px;border-radius:12px;background:#ffffff0c}.scorebox strong{display:block;font-size:1.7rem;color:var(--gold)}
+.modalback{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;padding:18px;z-index:5}.modalback.show{display:flex}.modal{max-width:480px;width:100%;background:#10234b;border:1px solid #ffffff35;border-radius:20px;padding:25px;box-shadow:0 25px 80px #0008}.modal h2{margin-top:0}.modal p{line-height:1.55;color:#dce5fa}.audiencebar{display:flex;align-items:center;gap:9px;margin:10px 0}.audiencebar b{width:22px}.barbg{background:#ffffff15;height:13px;border-radius:8px;overflow:hidden;flex:1}.barbg i{display:block;height:100%;background:var(--gold);border-radius:8px}.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+footer{color:#8191b5;font-size:.8rem;text-align:center;margin:22px 0 8px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.layout aside{order:-1}.ladder{display:grid;grid-template-columns:repeat(5,1fr)}.step{font-size:.72rem;display:block;text-align:center}.step span{display:block}.scorebox{display:inline-block;margin:0 8px 10px 0;min-width:130px}.jokers{grid-template-columns:repeat(3,1fr)}.joker{text-align:center;padding:10px 7px}.joker small{font-size:.72rem}}
+@media(max-width:520px){.app{padding:13px}.answers{grid-template-columns:1fr}.answer{min-height:57px}.jokers{grid-template-columns:1fr}.joker{text-align:left;padding:12px}.ladder{grid-template-columns:repeat(3,1fr)}}
+</style>
+<script src="/socket.io/socket.io.js"></script><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+<div class="app">
+<header><div class="brand">WER WIRD <span>QUIZ-MILLIONÄR?</span></div><div class="pill">15 Fragen · Allgemeinwissen · Einzelspieler</div></header>
+<div class="layout">
+<main>
+<div class="stage"><div id="counter">Frage 1 von 15</div><div class="progress"><div id="progress"></div></div><div class="pill">Punkte: <b id="topScore">0</b></div></div>
+<section class="card" id="gameCard">
+<div class="category" id="category">Warm-up</div>
+<h1 id="question">Bereit für die erste Frage?</h1>
+<div class="answers" id="answers"></div>
+<div class="feedback" id="feedback" aria-live="polite"></div>
+<div class="controls"><button class="primary" id="nextBtn" hidden>Nächste Frage →</button><button class="secondary" id="restartBtn">Neu starten ↻</button></div>
+</section>
+<div class="card" id="endCard" hidden>
+<div class="category">Spiel beendet</div><h1 id="endTitle">Geschafft!</h1><p id="endText"></p>
+<div class="controls"><button class="primary" id="playAgain">Neue Runde spielen ↻</button></div>
+</div>
+</main>
+<aside>
+<h2>DEINE JOKER</h2>
+<div class="jokers">
+<button class="joker" id="fiftyBtn">½  50:50<small>Zwei falsche Antworten entfernen</small></button>
+<button class="joker" id="audienceBtn">▥  Publikumsjoker<small>Live-Abstimmung per QR-Code</small></button>
+<button class="joker" id="phoneBtn">☎  Telefonjoker<small>Person fragen oder anrufen</small></button>
+</div>
+<hr style="border:0;border-top:1px solid #ffffff20;margin:18px 0">
+<div class="scorebox">Aktueller Punktestand<strong id="sideScore">0</strong><small style="color:var(--muted)">Punkte für richtige Antworten</small></div>
+<h2>FRAGENLEITER</h2><div class="ladder" id="ladder"></div>
+</aside>
+</div>
+<footer>Online-Quiz · Fragen: Open Trivia DE (CC BY-SA 4.0), mit lokalem Ersatzpool · Zuschauer per QR-Code</footer>
+</div>
+<div class="modalback" id="modalback" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><h2 id="modalTitle">Joker</h2><div id="modalBody"></div><div class="modal-actions"><button class="secondary" id="closeModal">Schließen</button></div></div></div>
+<script>
+const BANK = [
+{c:"Geografie",q:"Welche Stadt ist die Hauptstadt von Australien?",a:["Sydney","Canberra","Melbourne","Perth"],r:1,e:"Canberra ist seit 1913 die Hauptstadt Australiens."},
+{c:"Naturwissenschaft",q:"Welcher Planet ist der Sonne am nächsten?",a:["Venus","Mars","Merkur","Jupiter"],r:2,e:"Merkur ist der innerste Planet unseres Sonnensystems."},
+{c:"Geschichte",q:"In welchem Jahr fiel die Berliner Mauer?",a:["1987","1989","1990","1991"],r:1,e:"Die Grenzübergänge wurden am 9. November 1989 geöffnet."},
+{c:"Literatur",q:"Wer schrieb den Roman „Die Verwandlung“?",a:["Thomas Mann","Hermann Hesse","Franz Kafka","Bertolt Brecht"],r:2,e:"Franz Kafka veröffentlichte die Erzählung 1915."},
+{c:"Sport",q:"Wie viele Spieler einer Fußballmannschaft stehen regulär zu Spielbeginn auf dem Feld?",a:["9","10","11","12"],r:2,e:"Eine Mannschaft beginnt mit elf Spielern einschließlich Torwart."},
+{c:"Musik",q:"Welches Instrument hat typischerweise 88 Tasten?",a:["Akkordeon","Klavier","Cembalo","Orgel"],r:1,e:"Ein modernes Klavier hat in der Regel 88 Tasten."},
+{c:"Kunst",q:"Wer malte die Mona Lisa?",a:["Michelangelo","Raffael","Leonardo da Vinci","Caravaggio"],r:2,e:"Leonardo da Vinci malte das berühmte Porträt vermutlich im frühen 16. Jahrhundert."},
+{c:"Biologie",q:"Wie nennt man den Vorgang, bei dem Pflanzen Lichtenergie in chemische Energie umwandeln?",a:["Gärung","Photosynthese","Osmose","Verdunstung"],r:1,e:"Bei der Photosynthese entstehen mithilfe von Licht energiereiche Stoffe aus Wasser und Kohlenstoffdioxid."},
+{c:"Wirtschaft",q:"Was bezeichnet man als Inflation?",a:["Sinkende Beschäftigung","Allgemeinen Anstieg des Preisniveaus","Steigende Exporte","Fallende Steuern"],r:1,e:"Inflation bedeutet, dass das allgemeine Preisniveau steigt und Geld an Kaufkraft verliert."},
+{c:"Geografie",q:"Welcher dieser Flüsse fließt durch Budapest?",a:["Rhein","Donau","Elbe","Po"],r:1,e:"Die Donau teilt Budapest in die Stadtteile Buda und Pest."},
+{c:"Chemie",q:"Welches chemische Symbol steht für Silber?",a:["Si","S","Ag","Au"],r:2,e:"Ag stammt vom lateinischen Namen Argentum."},
+{c:"Geschichte",q:"Welche antike Stadt wurde beim Ausbruch des Vesuvs im Jahr 79 n. Chr. verschüttet?",a:["Sparta","Pompeji","Athen","Alexandria"],r:1,e:"Pompeji wurde bei der Eruption des Vesuvs verschüttet."},
+{c:"Literatur",q:"Wer ist der Autor von „Der Prozess“?",a:["Franz Kafka","Günter Grass","Friedrich Schiller","Erich Kästner"],r:0,e:"Der Roman „Der Prozess“ stammt von Franz Kafka und erschien postum."},
+{c:"Astronomie",q:"Welcher Mond ist der größte im Sonnensystem?",a:["Titan","Europa","Ganymed","Unser Mond"],r:2,e:"Ganymed, ein Mond des Jupiter, ist sogar größer als der Planet Merkur."},
+{c:"Wissenschaft",q:"Welche Einheit wird im Internationalen Einheitensystem für elektrische Kapazität verwendet?",a:["Tesla","Farad","Weber","Henry"],r:1,e:"Die elektrische Kapazität wird in Farad (F) gemessen."},
+{c:"Geografie",q:"Welches Land hat die längste Küstenlinie der Welt?",a:["Russland","Australien","Kanada","Indonesien"],r:2,e:"Kanada besitzt aufgrund seiner vielen Inseln und Buchten die längste Küstenlinie."},
+{c:"Geschichte",q:"Welcher Vertrag beendete formal den Kriegszustand zwischen Deutschland und den Alliierten nach dem Ersten Weltkrieg?",a:["Vertrag von Utrecht","Vertrag von Versailles","Wiener Kongress","Vertrag von Tordesillas"],r:1,e:"Der Vertrag von Versailles wurde 1919 unterzeichnet."},
+{c:"Wissenschaft",q:"Welches Teilchen trägt eine negative elektrische Ladung?",a:["Proton","Neutron","Elektron","Photon"],r:2,e:"Elektronen tragen eine negative Elementarladung."},
+{c:"Kunst",q:"Welcher Künstler ist besonders für die Gemäldeserie „Seerosen“ bekannt?",a:["Claude Monet","Paul Cézanne","Edvard Munch","Salvador Dalí"],r:0,e:"Claude Monet malte über viele Jahre zahlreiche Seerosenbilder."},
+{c:"Politik",q:"Wie heißt das Unterhaus des britischen Parlaments?",a:["House of Lords","House of Commons","Senate","National Assembly"],r:1,e:"Das House of Commons ist die direkt gewählte Kammer des britischen Parlaments."},
+{c:"Technik",q:"Was misst die Einheit Hertz?",a:["Energie","Frequenz","Leistung","Druck"],r:1,e:"Ein Hertz entspricht einer Schwingung pro Sekunde."},
+{c:"Geografie",q:"Welche Meerenge trennt Europa und Afrika an der engsten Stelle?",a:["Bosporus","Straße von Gibraltar","Ärmelkanal","Beringstraße"],r:1,e:"Die Straße von Gibraltar verbindet Atlantik und Mittelmeer."},
+{c:"Biologie",q:"Welches Organ produziert Insulin?",a:["Leber","Bauchspeicheldrüse","Milz","Niere"],r:1,e:"Insulin wird von Betazellen in den Langerhans-Inseln der Bauchspeicheldrüse gebildet."},
+{c:"Geschichte",q:"Wer war die erste Frau, die einen Nobelpreis erhielt?",a:["Rosalind Franklin","Marie Curie","Ada Lovelace","Lise Meitner"],r:1,e:"Marie Curie erhielt 1903 den Nobelpreis für Physik."},
+{c:"Wirtschaft",q:"Welche Institution legt im Euroraum die Leitzinsen für die Geldpolitik fest?",a:["Europäische Zentralbank","Europäischer Gerichtshof","Europäische Investitionsbank","Europarat"],r:0,e:"Die Europäische Zentralbank bestimmt die Geldpolitik des Euroraums."},
+{c:"Physik",q:"Welche Aussage beschreibt die Relativitätstheorie am ehesten?",a:["Sie erklärt ausschließlich chemische Bindungen","Sie beschreibt unter anderem Raum, Zeit, Gravitation und Bewegung","Sie beweist, dass Schall sich im Vakuum ausbreitet","Sie besagt, dass Energie nicht erhalten bleibt"],r:1,e:"Ein Kernaspekt von Einsteins Relativitätstheorien ist der Zusammenhang von Raum, Zeit, Bewegung und Gravitation."},
+{c:"Geografie",q:"Welche Hauptstadt liegt am höchsten über dem Meeresspiegel?",a:["La Paz","Madrid","Kathmandu","Nairobi"],r:0,e:"La Paz in Bolivien liegt auf etwa 3.600 Metern Höhe; Sucre ist die verfassungsmäßige Hauptstadt."},
+{c:"Chemie",q:"Welches Element hat die Ordnungszahl 26?",a:["Kupfer","Eisen","Zink","Nickel"],r:1,e:"Eisen hat die Ordnungszahl 26."},
+{c:"Philosophie",q:"Welcher Philosoph wird mit dem Satz „Ich denke, also bin ich“ verbunden?",a:["Immanuel Kant","René Descartes","Aristoteles","David Hume"],r:1,e:"Der Satz geht auf René Descartes zurück."},
+{c:"Kultur",q:"In welchem Land entstand die Drucktechnik, mit der Johannes Gutenberg in Europa berühmt wurde?",a:["China","Deutschland","Italien","Niederlande"],r:1,e:"Gutenberg entwickelte den Buchdruck mit beweglichen Metalllettern im Mainz des 15. Jahrhunderts; Druckverfahren gab es in Ostasien bereits früher."},
+{c:"Astronomie",q:"Was ist ein Lichtjahr?",a:["Eine Zeiteinheit","Die Strecke, die Licht in einem Jahr zurücklegt","Das Alter eines Sterns","Die Zeit einer Erdumdrehung"],r:1,e:"Ein Lichtjahr ist eine Entfernung von rund 9,46 Billionen Kilometern."},
+{c:"Wissenschaft",q:"Welche Zahl ist ungefähr die Avogadro-Konstante pro Mol?",a:["6,022 × 10²³","3,00 × 10⁸","9,81","1,602 × 10⁻¹⁹"],r:0,e:"Die Avogadro-Konstante beträgt ungefähr 6,022 × 10²³ mol⁻¹."},
+{c:"Geschichte",q:"Welches Reich wurde von Mansa Musa im 14. Jahrhundert regiert?",a:["Mali-Reich","Mongolisches Reich","Byzantinisches Reich","Aztekenreich"],r:0,e:"Mansa Musa war Herrscher des Mali-Reichs und ist für seinen Reichtum und seine Pilgerreise nach Mekka bekannt."},
+{c:"Musik",q:"Welche Komponistin schrieb das Klavierwerk „Das Jahr“?",a:["Fanny Hensel","Clara Schumann","Ethel Smyth","Alma Mahler"],r:0,e:"Fanny Hensel, geborene Mendelssohn, komponierte den Zyklus „Das Jahr“ 1841."},
+{c:"Physik",q:"Welche Teilchen vermitteln nach dem Standardmodell die starke Wechselwirkung?",a:["Photonen","Gluonen","Neutrinos","W-Bosonen"],r:1,e:"Gluonen sind die Austauschteilchen der starken Wechselwirkung."},
+{c:"Literatur",q:"Wer verfasste den Roman „Hundert Jahre Einsamkeit“?",a:["Jorge Luis Borges","Gabriel García Márquez","Mario Vargas Llosa","Isabel Allende"],r:1,e:"Der kolumbianische Schriftsteller Gabriel García Márquez veröffentlichte den Roman 1967."},
+{c:"Geografie",q:"Welcher See ist nach Fläche der größte Süßwassersee der Welt?",a:["Victoriasee","Oberer See (Lake Superior)","Baikalsee","Tanganjikasee"],r:1,e:"Der Obere See ist flächenmäßig der größte Süßwassersee; der Baikalsee enthält das größte Volumen an Süßwasser in einem See."},
+{c:"Mathematik",q:"Wie viele Kanten hat ein Dodekaeder mit zwölf regelmäßigen Fünfecken?",a:["20","24","30","36"],r:2,e:"Jede der zwölf Flächen hat fünf Kanten; jede Kante gehört zu zwei Flächen: 12 × 5 ÷ 2 = 30."},
+{c:"Geschichte",q:"Welcher Friedensschluss von 1648 beendete den Dreißigjährigen Krieg im Heiligen Römischen Reich?",a:["Westfälischer Friede","Augsburger Religionsfrieden","Prager Frieden von 1635","Friede von Basel"],r:0,e:"Der Westfälische Friede wurde 1648 in Münster und Osnabrück geschlossen."},
+{c:"Wissenschaft",q:"Welche mathematische Konstante ist das Verhältnis des Umfangs eines Kreises zu seinem Durchmesser?",a:["e","Phi","Pi","Gamma"],r:2,e:"Pi (π) ist ungefähr 3,14159."},
+{c:"Kunst",q:"Welcher Architekt entwarf die berühmte Villa Savoye?",a:["Frank Lloyd Wright","Le Corbusier","Walter Gropius","Ludwig Mies van der Rohe"],r:1,e:"Villa Savoye bei Paris ist ein Schlüsselwerk der modernen Architektur von Le Corbusier."},
+{c:"Biologie",q:"Wie heißt der Prozess, durch den Zellen beschädigte oder nicht mehr benötigte Bestandteile abbauen und recyceln?",a:["Mitose","Autophagie","Meiose","Transkription"],r:1,e:"Bei der Autophagie werden zelluläre Bestandteile abgebaut und wiederverwertet."},
+{c:"Wirtschaft",q:"Was beschreibt der Gini-Koeffizient typischerweise?",a:["Inflationsrate","Ungleichverteilung, etwa von Einkommen","Wirtschaftswachstum","Arbeitslosenquote"],r:1,e:"Der Gini-Koeffizient misst die Ungleichheit einer Verteilung."},
+{c:"Politik",q:"Welcher Vertrag legte 1992 die Grundlage für die Europäische Union in ihrer heutigen institutionellen Form?",a:["Vertrag von Maastricht","Vertrag von Nizza","Vertrag von Lissabon","Vertrag von Rom 1957"],r:0,e:"Der Vertrag von Maastricht wurde 1992 unterzeichnet und trat 1993 in Kraft."},
+{c:"Physik",q:"Welche Größe bleibt bei einer chemischen Reaktion in einem abgeschlossenen System erhalten?",a:["Gesamtmasse","Temperatur immer","Volumen immer","Farbe"],r:0,e:"Nach dem Massenerhaltungsgesetz bleibt die Gesamtmasse in einem abgeschlossenen System erhalten."},
+{c:"Geschichte",q:"Welcher Mathematiker und Astronom berechnete im 3. Jahrhundert v. Chr. erstaunlich genau den Erdumfang?",a:["Euklid","Eratosthenes","Archimedes","Ptolemäus"],r:1,e:"Eratosthenes nutzte Schattenwinkel an zwei Orten zur Abschätzung des Erdumfangs."},
+{c:"Technik",q:"Welches Protokoll wird üblicherweise verwendet, um Webseiten verschlüsselt aufzurufen?",a:["FTP","HTTPS","SMTP","Telnet"],r:1,e:"HTTPS schützt die Verbindung zwischen Browser und Webseite durch TLS-Verschlüsselung."},
+{c:"Philosophie",q:"Wer schrieb „Kritik der reinen Vernunft“?",a:["Georg Wilhelm Friedrich Hegel","Immanuel Kant","Friedrich Nietzsche","John Locke"],r:1,e:"Immanuel Kant veröffentlichte das Werk erstmals 1781."},
+{c:"Wissenschaft",q:"Welches der folgenden Elemente ist ein Edelgas?",a:["Chlor","Argon","Natrium","Wasserstoff"],r:1,e:"Argon gehört zu den Edelgasen der 18. Gruppe des Periodensystems."},
+{c:"Geografie",q:"Welcher Staat ist vollständig von Südafrika umgeben?",a:["Eswatini","Lesotho","Botswana","Namibia"],r:1,e:"Lesotho ist ein Binnenstaat, der vollständig von Südafrika umschlossen ist."},
+{c:"Mathematik",q:"Welche Aussage über Primzahlen ist korrekt?",a:["Jede Primzahl ist ungerade","Es gibt unendlich viele Primzahlen","1 ist eine Primzahl","Alle Primzahlen größer als 5 enden auf 5"],r:1,e:"Der Beweis für die Unendlichkeit der Primzahlen wird traditionell Euklid zugeschrieben."}
+];
+const TOTAL=15, LETTERS=["A","B","C","D"];
+const socket=io();
+let questions=[], index=0, score=0, answered=false, used={fifty:false,audience:false,phone:false}, eliminated=[], currentQuestion=null;
+let pollActive=false, audienceVotes={A:0,B:0,C:0,D:0}, audienceCount=0, pollRoom=null, qrcodeInstance=null;
+const $=id=>document.getElementById(id);
+const escapeHtml=s=>String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+// Online-Fragen von Open Trivia DE; bisherige BANK dient als Reserve.
+const API_URL="/api/questions";
+const SEEN_KEY="quiz-millionaer-seen-v1";
+let roundGeneration=0;
+function seenQuestions(){try{return new Set(JSON.parse(localStorage.getItem(SEEN_KEY)||"[]"))}catch{return new Set()}}
+function rememberQuestions(items){
+  try{let s=seenQuestions();items.forEach(q=>s.add(q.q.trim().toLowerCase()));
+  let arr=[...s];localStorage.setItem(SEEN_KEY,JSON.stringify(arr.slice(-1200)))}catch{}
+}
+// Nur deutsch formulierte Fragen verwenden. Keine automatische Übersetzung.
+// Ein Sprachfilter kann nicht sicher erkennen, ob ein deutscher Text ursprünglich übersetzt wurde.
+function decodeTriviaText(value){
+  let result=String(value??"");
+  for(let i=0;i<3;i++){
+    const el=document.createElement("textarea");el.innerHTML=result;
+    const next=el.value;
+    if(next===result)break;
+    result=next;
+  }
+  return result.replace(/\s+/g," ").trim();
+}
+function looksGermanQuestion(question){
+  if(!question||question.length<12||question.length>350)return false;
+  if(/&(?:#\d+|#x[\da-f]+|[a-z]{2,12});/i.test(question))return false;
+  if(/(?:^|\s)(?:what|which|who|where|when|why|how|is|are|does|did)\s/i.test(question))return false;
+  // Konservativer Filter: klare deutsche Frageformulierungen; fragwürdige Fälle überspringen.
+  return /\b(?:was|wer|wen|wem|wessen|welche[rsnm]?|welcher|welches|wie|wo|woher|wohin|wann|warum|wieso|wodurch|womit|worauf|worin|wieviel|wie viele|in welchem|in welcher|aus welchem|auf welchem|ist|sind|hat|haben|kann|können|wurde|wurden|nennt|heißt|bezeichnet|gilt|stammt|gehört|steht|findet|fand|gab|gibt)\b/i.test(question)
+    && /[?？]$/.test(question);
+}
+function normalizeOnline(item){
+  const question=item.question||item.q;
+  const correct=item.correct_answer??item.correctAnswer;
+  const wrong=item.incorrect_answers??item.incorrectAnswers;
+  if(typeof question!=="string"||typeof correct!=="string"||!Array.isArray(wrong)||wrong.length!==3)return null;
+  const q=decodeTriviaText(question),right=decodeTriviaText(correct),options=[right,...wrong.map(decodeTriviaText)];
+  if(!looksGermanQuestion(q)||options.some(x=>!x||x.length>180||/&(?:#\d+|#x[\da-f]+|[a-z]{2,12});/i.test(x))||new Set(options.map(x=>x.toLowerCase())).size!==4)return null;
+  // Offensichtliche maschinelle Übersetzungsartefakte bei Eigennamen nicht anzeigen.
+  if(/\bSchlachtfeld\s*\d+\b/i.test(q+" "+options.join(" ")))return null;
+  shuffle(options);
+  const difficulty=String(item.difficulty??item.level??"3").toLowerCase();
+  const band=(difficulty==="easy"||difficulty==="1"||difficulty==="2")?0:(difficulty==="hard"||difficulty==="5"||difficulty==="4")?2:1;
+  return {c:decodeTriviaText(item.category||"Allgemeinwissen"),q,a:options,r:options.indexOf(right),e:"Frage aus Open Trivia DE.",band};
+}
+async function loadOnlineQuestions(difficulty){
+  const url=`${API_URL}?amount=35&difficulty=${encodeURIComponent(difficulty)}&_=${Date.now()}`;
+  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),10000);
+  try{
+    const response=await fetch(url,{signal:controller.signal,cache:"no-store"});
+    if(!response.ok)throw new Error(`HTTP ${response.status}`);
+    const data=await response.json();
+    if(data.response_code!==undefined&&data.response_code!==0)throw new Error(`API-Code ${data.response_code}`);
+    const rows=Array.isArray(data)?data:(data.results||data.questions||data.data?.questions||[]);
+    if(!Array.isArray(rows))throw new Error("Unerwartetes Datenformat");
+    // Die abgefragte Schwierigkeitsstufe hat Vorrang; abweichende API-Angaben werden verworfen.
+    const expected={easy:0,medium:1,hard:2}[difficulty];
+    return rows.map(normalizeOnline).filter(q=>q&&q.band===expected);
+  }finally{clearTimeout(timer)}
+}
+function makeRound(online=[]){
+  const bands=[BANK.slice(0,10),BANK.slice(10,22),BANK.slice(22)];
+  const seen=seenQuestions();const picked=[];const pickedKeys=new Set();
+  for(let i=0;i<3;i++){
+    const fresh=shuffle(online.filter(q=>q.band===i&&!seen.has(q.q.trim().toLowerCase())));
+    const other=shuffle(online.filter(q=>q.band===i&&seen.has(q.q.trim().toLowerCase())));
+    const reserve=shuffle([...bands[i]]);
+    for(const q of [...fresh,...other,...reserve]){
+      const key=q.q.trim().toLowerCase();if(pickedKeys.has(key))continue;
+      picked.push({...q,level:["Einfach","Mittel","Schwer"][i]});pickedKeys.add(key);
+      if(picked.length===(i+1)*5)break;
+    }
+  }
+  questions=picked.slice(0,TOTAL);rememberQuestions(questions);
+  return questions.length===TOTAL;
+}
+function renderLadder(){
+ const ladder=$("ladder"); ladder.innerHTML="";
+ for(let i=0;i<TOTAL;i++){let n=i+1;let d=document.createElement("div");d.className="step"+(i===index&&!answered?" current":"")+(i<index?" done":"");d.innerHTML=`<span>${String(n).padStart(2,"0")}</span><span>${n*100} P</span>`;ladder.appendChild(d)}
+}
+async function start(){
+  const generation=++roundGeneration;
+  index=0;score=0;answered=false;used={fifty:false,audience:false,phone:false};eliminated=[];
+  $("gameCard").hidden=false;$("endCard").hidden=true;$("topScore").textContent="0";$("sideScore").textContent="0";
+  ["fiftyBtn","audienceBtn","phoneBtn"].forEach(id=>$(id).disabled=true);
+  $("question").textContent="Lade neue Fragen aus der Online-Datenbank …";
+  $("category").textContent="Neue Spielrunde";$("answers").innerHTML="";$("feedback").className="feedback";
+  $("nextBtn").hidden=true;
+  let online=[];let onlineWorked=false;
+  const results=await Promise.allSettled(["easy","medium","hard"].map(loadOnlineQuestions));
+  results.forEach((result,i)=>{
+    if(result.status==="fulfilled")online.push(...result.value);
+    else console.warn(`Online-Fragen (${["einfach","mittel","schwer"][i]}) nicht verfügbar:`,result.reason);
+  });
+  onlineWorked=online.length>0;
+  console.info(`${online.length} Online-Fragen nach deutschem Sprach- und Qualitätsfilter verfügbar.`);
+  if(generation!==roundGeneration)return;
+  makeRound(online);
+  if(!onlineWorked)console.info("Ersatzfragen aus dem eingebauten Fragenpool verwendet.");
+  ["fiftyBtn","audienceBtn","phoneBtn"].forEach(id=>$(id).disabled=false);
+  socket.emit("host:new-game");showQuestion();
+}
+function showQuestion(){
+ currentQuestion=questions[index];answered=false;eliminated=[];
+ $("counter").textContent=`Frage ${index+1} von ${TOTAL}`;$("progress").style.width=`${index/TOTAL*100}%`;
+ $("category").textContent=`${currentQuestion.level} · ${currentQuestion.c}`;$("question").textContent=currentQuestion.q;
+ $("answers").innerHTML="";$("feedback").className="feedback";$("feedback").innerHTML="";$("nextBtn").hidden=true;
+ currentQuestion.a.forEach((answer,i)=>{let b=document.createElement("button");b.className="answer";b.dataset.index=i;b.innerHTML=`<span class="letter">${LETTERS[i]}</span><span>${escapeHtml(answer)}</span>`;b.onclick=()=>choose(i);$("answers").appendChild(b)});
+ socket.emit("host:question",{question:currentQuestion.q, answers:currentQuestion.a, letters:LETTERS, number:index+1, total:TOTAL});
+ renderLadder();
+}
+function choose(i){
+ if(answered||eliminated.includes(i))return;
+ answered=true;const q=currentQuestion;const correct=i===q.r;
+ document.querySelectorAll(".answer").forEach((b,j)=>{b.disabled=true;if(j===q.r)b.classList.add("correct");else if(j===i)b.classList.add("wrong")});
+ if(correct){score+=(index+1)*100;$("feedback").className="feedback show good";$("feedback").innerHTML=`<strong>Richtig! +${(index+1)*100} Punkte.</strong><br>${escapeHtml(q.e)}`}
+ else{$("feedback").className="feedback show bad";$("feedback").innerHTML=`<strong>Leider falsch.</strong> Richtig wäre <b>${LETTERS[q.r]}: ${escapeHtml(q.a[q.r])}</b>.<br>${escapeHtml(q.e)}`}
+ $("topScore").textContent=score;$("sideScore").textContent=score;$("nextBtn").hidden=false;$("nextBtn").textContent=index===TOTAL-1?"Ergebnis anzeigen →":"Nächste Frage →";
+ $("progress").style.width=`${(index+1)/TOTAL*100}%`;renderLadder();
+ socket.emit("host:reveal-answer");
+}
+function next(){if(!answered)return;if(index<TOTAL-1){index++;showQuestion()}else finish()}
+function finish(){
+ $("gameCard").hidden=true;$("endCard").hidden=false;
+ $("endTitle").textContent=score>=10000?"Quiz-Profi!":score>=6000?"Starke Runde!":score>=3000?"Gut gespielt!":"Danke fürs Mitspielen!";
+ $("endText").textContent=`Du hast ${score.toLocaleString("de-DE")} Punkte erreicht. Starte eine neue Runde, um einen neuen zufälligen Fragenmix zu bekommen.`;
+ $("progress").style.width="100%";socket.emit("host:question",{question:"Die Runde ist beendet.",answers:[],letters:LETTERS,number:TOTAL,total:TOTAL});
+}
+function modal(title,body){$("modalTitle").textContent=title;$("modalBody").innerHTML=body;$("modalback").classList.add("show")}
+function closeModal(){$("modalback").classList.remove("show")}
+function useFifty(){
+ if(used.fifty||answered)return;used.fifty=true;$("fiftyBtn").disabled=true;
+ let wrong=shuffle([0,1,2,3].filter(i=>i!==currentQuestion.r)).slice(0,2);eliminated=wrong;
+ document.querySelectorAll(".answer").forEach((b,i)=>{if(wrong.includes(i)){b.classList.add("removed");b.disabled=true}});
+ modal("50:50-Joker","Zwei falsche Antwortmöglichkeiten wurden entfernt. Eine der verbleibenden Antworten ist richtig.");
+}
+function useAudience(){
+ if(used.audience||answered)return;used.audience=true;$("audienceBtn").disabled=true;
+ pollActive=true; audienceVotes={A:0,B:0,C:0,D:0};audienceCount=0;
+ socket.emit("host:start-poll",{question:currentQuestion.q,answers:currentQuestion.a,letters:LETTERS,number:index+1});
+ const roomUrl=`${location.origin}/vote`;
+ modal("Publikumsjoker",`<p>Die Live-Abstimmung ist geöffnet. Bitte zeige den QR-Code oder teile den Link mit den Zuschauern.</p>
+ <div id="qrWrap" style="display:flex;justify-content:center;background:white;padding:14px;border-radius:12px;min-height:190px;align-items:center"><div id="qrCode"></div></div>
+ <p style="text-align:center"><a id="voteLink" href="${roomUrl}" target="_blank" style="color:#ffd166;word-break:break-all">${roomUrl}</a></p>
+ <p id="pollStatus">Warte auf Stimmen…</p><div id="pollResults"></div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="primary" id="closePoll">Abstimmung beenden</button></div>`);
+ const qrTarget=$("qrCode");
+ if(window.QRCode && qrTarget){new QRCode(qrTarget,{text:roomUrl,width:180,height:180,colorDark:"#07142f",colorLight:"#ffffff"});}
+ $("closePoll").onclick=()=>{socket.emit("host:end-poll");pollActive=false;renderPollResults(true);};
+ renderPollResults(false);
+}
+function renderPollResults(final){
+ const target=$("pollResults");if(!target)return;
+ const total=Object.values(audienceVotes).reduce((a,b)=>a+b,0);
+ target.innerHTML=LETTERS.map(l=>{let pct=total?Math.round((audienceVotes[l]||0)/total*100):0;return `<div class="audiencebar"><b>${l}</b><div class="barbg"><i style="width:${pct}%"></i></div><span>${pct}%</span></div>`}).join("");
+ const status=$("pollStatus");if(status)status.textContent=`${total} Stimme${total===1?"":"n"} eingegangen${final?" · Abstimmung beendet":" · Live"}`;
+}
+function usePhone(){
+  if(used.phone||answered)return;
+  used.phone=true;
+  $("phoneBtn").disabled=true;
+
+  modal("Telefonjoker",
+    "<p><strong>Du darfst jetzt eine Person im Raum um Hilfe bitten oder jemanden anrufen.</strong></p>"
+  );
+}
+socket.on("poll:update",data=>{audienceVotes=data.votes||audienceVotes;audienceCount=data.count||0;renderPollResults(false)});
+socket.on("poll:ended",data=>{audienceVotes=data.votes||audienceVotes;pollActive=false;renderPollResults(true);const b=$("closePoll");if(b)b.disabled=true;});
+socket.on("audience:count",data=>{const s=$("pollStatus");if(s&&pollActive)s.textContent=`${data.count} Person(en) verbunden · ${audienceCount} Stimme(n) eingegangen`;});
+$("nextBtn").onclick=next;$("restartBtn").onclick=()=>{if(confirm("Runde wirklich neu starten? Der Punktestand und die Joker werden zurückgesetzt."))start()};$("playAgain").onclick=start;
+$("fiftyBtn").onclick=useFifty;$("audienceBtn").onclick=useAudience;$("phoneBtn").onclick=usePhone;
+$("closeModal").onclick=closeModal;$("modalback").onclick=e=>{if(e.target===$("modalback"))closeModal()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();if(!answered&&["1","2","3","4"].includes(e.key)){let b=document.querySelector(`.answer[data-index="${Number(e.key)-1}"]`);if(b&&!b.disabled&&!b.classList.contains("removed"))b.click()}if(e.key==="Enter"&&answered)next()});
+start();
+
+</script>
+</body>
+</html>
