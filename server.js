@@ -12,6 +12,27 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/vote", (req, res) => res.sendFile(path.join(__dirname, "public", "vote.html")));
 app.get("/health", (req, res) => res.json({ ok: true }));
 
+// Online-Fragen serverseitig laden: verhindert CORS-Probleme im Browser.
+app.get("/api/questions", async (req, res) => {
+  const amount = Math.min(50, Math.max(15, Number.parseInt(req.query.amount, 10) || 50));
+  const url = `https://api.opentrivia.de?amount=${amount}&type=multiple`;
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12000);
+    let upstream;
+    try { upstream = await fetch(url, { signal: controller.signal, headers: { Accept: "application/json" } }); }
+    finally { clearTimeout(timer); }
+    if (!upstream.ok) throw new Error(`Trivia-API HTTP ${upstream.status}`);
+    const data = await upstream.json();
+    if (data.response_code !== 0 || !Array.isArray(data.results)) throw new Error("Ungültige Trivia-API-Antwort");
+    res.set("Cache-Control", "no-store").json(data);
+  } catch (error) {
+    console.error("Trivia-API Fehler:", error.message);
+    res.status(502).json({ error: "Online-Fragen derzeit nicht erreichbar" });
+  }
+});
+
+
 let currentQuestion = null;
 let pollOpen = false;
 let votes = { A: 0, B: 0, C: 0, D: 0 };
